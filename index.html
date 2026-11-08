@@ -299,7 +299,7 @@ body:not(.mob) .joy i{background:#ffd23f;border:3px solid #1c1c24}
     <div id="pause" class="card" hidden>
       <h2>Paused</h2>
       <p>Take a breath ♥</p>
-      <div class="pzb"><button class="btn" id="pzc">Continue ▶</button><button class="btn alt" id="pzm">Main Menu</button></div>
+      <div class="pzb"><button class="btn" id="pzc">Continue ▶</button><button class="btn alt" id="pzr">Restart level ↻</button><button class="btn alt" id="pzm">Main Menu</button></div>
     </div>
     <div id="book" class="card book" hidden>
       <h2>Mirza’s Menemen</h2>
@@ -7777,6 +7777,95 @@ sayB=function(x,y,s,maxw){s=L(s);maxw=maxw||132;g.font=FNT(8,1);
   const lw=Math.ceil(Math.max(...lines.map(mw7)))+8,lh=lines.length*9+3,bx=Math.round(cl(x-lw/2,2,W-lw-2)),by=Math.round(y-lh-3),tx=Math.round(cl(x,bx+3,bx+lw-4));
   R('#1a1226',bx-1,by-1,lw+2,lh+2);R('#fff',bx,by,lw,lh);R('#1a1226',tx-1,by+lh,3,3);R('#fff',tx,by+lh,1,2);
   g.fillStyle='#1a1226';g.textAlign='center';lines.forEach((l,i)=>_fillText(l,bx+lw/2,by+9+i*9))};
+
+/* ================= v29a: Level 1 – patrols that respect obstacles, visible patrol zones ================= */
+/* every officer and dog now walks only in a clear lane between obstacles (their sprites never overlap a suitcase, desk or seat) */
+(function(){const ZC=[[372,512,.6],[718,862,.7],[1078,1102,.45],[1500,1538,.8],[1970,2170,.9]],ZD=[[1318,1442,1.25],[1760,1900,1.2]];
+  CO1.forEach((c,i)=>{const z=ZC[i];if(!z)return;c.a=z[0];c.b=z[1];c.s=z[2];c.x=c.a;c.d=1});
+  DG1.forEach((d,i)=>{const z=ZD[i];if(!z)return;d.a=z[0];d.b=z[1];d.s=z[2];d.x=d.a;d.d=1})})();
+/* patrol zones painted on the floor: blue for customs officers, orange with paw prints for dogs */
+function zones29(){const O='#1a1226';
+  const band=(x0,x1,col,edge,paw)=>{if(x1<cam-10||x0>cam+W+10)return;R(col,x0,GY,x1-x0,16);R(edge,x0,GY,x1-x0,1);
+    for(const ex of[x0,x1-3]){for(let k=0;k<4;k++)R(k%2?'#1a1226':'#ffd23f',ex,GY+k*4,3,4)}
+    if(paw)for(let x=x0+10;x<x1-8;x+=18){const yy=GY+5+((x/18|0)%2)*5;R('rgba(120,70,30,.45)',x,yy,3,2);R('rgba(120,70,30,.45)',x-1,yy-2,1,1);R('rgba(120,70,30,.45)',x+1,yy-3,1,1);R('rgba(120,70,30,.45)',x+3,yy-2,1,1)}};
+  for(const c of CO1)band(c.a-6,c.b+17,'rgba(70,120,230,.16)','rgba(70,120,230,.6)',0);
+  for(const d of DG1)band(d.a-2,d.b+19,'rgba(230,140,60,.16)','rgba(230,140,60,.6)',1)}
+var _floor29=floor1;floor1=function(){_floor29();if(lvl===1)zones29()};
+/* officers who spot Anqi show a “!” and speed up – but never leave their lane */
+var _draw1_29=draw1;draw1=function(){_draw1_29();if(lvl!==1||st!=='play')return;
+  for(const c of CO1){if(c.stun>0||c.x<cam-30||c.x>cam+W+30)continue;const near=Math.abs(P.x-c.x)<80&&Math.sign(P.x-c.x)===c.d;if(near&&(tick1>>3)%2)mark16(Math.round(c.x+5-cam),GY-34,'!','#ff5a4a')}
+  for(const d of DG1){if(d.x<cam-30||d.x>cam+W+30)continue;if(Math.abs(P.x-d.x)<46&&(tick1>>4)%2)mark16(Math.round(d.x+8-cam),GY-18,'♪','#ffd23f')}};
+
+/* ================= v29g: Galata Tower – opening cutscene (why they climb the outside of the tower) ================= */
+var CUTG29=900;
+function npcQ29(){const n=npc19(),N16=mkNpc16();return[n.teyze,n.umb,n.balik,bm22(),N16.dede||n.simit,n.simit]}
+function drawCutG29(){const t=T,O='#1a1226';g.save();g.scale(2,2);
+  /* late-afternoon sky after the rain, the sun getting low */
+  const sg=g.createLinearGradient(0,0,0,74);sg.addColorStop(0,'#6ab0e8');sg.addColorStop(.7,'#ffd2a0');sg.addColorStop(1,'#ffb07a');g.fillStyle=sg;g.fillRect(0,0,160,74);
+  const sunY=34+Math.min(6,t/150);g.fillStyle='rgba(255,236,170,.35)';g.beginPath();g.arc(140,sunY,12,0,7);g.fill();g.fillStyle='#fff0b8';g.beginPath();g.arc(140,sunY,6,0,7);g.fill();
+  g.globalAlpha=.22;['#ff4a4a','#ff9a3a','#ffd23f','#5ac04a','#3a9ad9','#6a5ac8'].forEach((c,i)=>{g.strokeStyle=c;g.lineWidth=2;g.beginPath();g.arc(30,80,52-i*2,Math.PI,1.6*Math.PI);g.stroke()});g.globalAlpha=1;
+  /* the tower and the houses around it */
+  for(const[x,w,c]of[[-4,34,'#e0c0a0'],[130,34,'#c8c0e0']])fac19(x,74,w,c,{fl:2,bal:1});
+  galata19(96,74,.72,'#c8a888','#9a8068');R(O,92,66,8,8);R('#3a2a22',93,67,6,7);g.fillStyle='#3a2a22';g.beginPath();g.arc(96,67,3,Math.PI,0);g.fill();
+  /* auntie shaking a rug out of a window – and a gull waiting on the cone */
+  if(t>=620){const k=Math.round(Math.sin(t/4)*2);R(O,141,34,10,8);R('#f2c8a8',143,35,5,5);R('#6a4a3a',142,34,7,2);R(O,130,38+k,12,6);R('#c0392b',131,39+k,10,4);for(let i=0;i<3;i++)R('#ffd23f',132+i*3,40+k,1,2);if((t>>2)%2)R('rgba(200,180,160,.6)',126,36+k,3,2)}
+  const gy=t<600?-10:t<640?-10+(t-600)/40*28:18;if(t>=600)gull22(t<640?110-(t-600)/40*14:96,gy,t<640?gfr22(t):((t>>4)%3?'p':'k'),false,.7);
+  /* ground: wet cobbles */
+  R('#8a7c6a',0,74,160,16);R('#a89a88',0,74,160,1);for(let x=0;x<160;x+=8)R('#7a6c5a',x+((x/8)%2)*3,80,6,2);g.fillStyle='rgba(150,180,220,.35)';g.beginPath();g.ellipse(58,84,14,1.8,0,0,7);g.fill();
+  /* the queue and the ticket officer */
+  const Q=npcQ29();for(let i=0;i<6;i++){const qx=106+i*9,bob=t>=760&&t<860?Math.round(Math.abs(Math.sin(t/5+i))*2):0;spr(Q[i].s,qx,62-bob,true);if(t>=770&&t<850&&i%2===0)mark16(qx+6,44,'!!','#ffd23f')}
+  const sx=76;spr(ag25().s,sx,62,true);/* banner over the queue */R(O,112,40,2,34);R(O,150,40,2,34);R(O,111,40,42,11);R('#ffd23f',112,41,40,9);R('#c0392b',112,41,40,1);
+  /* the two of them */
+  const walk=t<110,mx=Math.round(lin16([[0,-30],[110,22],[750,22],[800,90],[9999,90]])),ax=mx+13,carry=t>=740;
+  if(!carry){spr(SP.boy[walk?fr16(1):(t>=370&&t<400?'j':'s')],mx,62,!(t>=530));spr(SP.anqi[walk?fr16(1):(t>=680&&t<740&&(t>>3)%2?'j':'s')],ax,62,true);
+    if(t>=305&&t<365)tears15(ax-5,49,1,60,true)}
+  else{const climb=t>=800,cy=climb?Math.round(62-(t-800)*.45):62;duo6(mx,cy,climb?((t>>3)%2?'a':'s'):((t>>3)%2?'a':'s'),1,climb);if(!climb&&(t>>2)%2)R('rgba(255,255,255,.6)',mx-12,70,4,1)}
+  if(t>=370&&t<400)mark16(mx+6,40,'!','#ffd23f');if(t>=680&&t<760)hearts16(ax+6,50,3,0);
+  g.restore();
+  /* the queue sign (drawn at full resolution so it stays readable) */
+  g.font=FNT(6,1);g.textAlign='center';g.fillStyle='#1a1226';_fillText(L('QUEUE ~ 2 HOURS'),264,96);
+  const B=(a,b,x,s)=>{if(t>=a&&t<b)sayB(x,92,s,170)};const AX=(ax+6)*2,MX=(mx+6)*2,SX=(sx+6)*2;
+  B(120,210,AX,'The sun sets in half an hour… I want to watch it from the top!');B(215,300,SX,'The queue is two hours, my friends.');B(305,365,AX,'Two hours?!');
+  B(375,450,MX,'Then we take the shortcut.');B(455,525,AX,'What shortcut…?');B(530,610,MX,'Hop on my back. Hold on tight!');B(615,675,AX,'Mirza… you’re crazy.');B(680,740,AX,'…I love it!');
+  if(t>=760&&t<850)sayB(SX,92,'Hey! Where are you two going?!',170);
+  cap15('Galata, after the rain',null,8,110);
+  let f=t<24?1-t/24:0;if(t>CUTG29-36)f=(t-CUTG29+36)/36;if(f>0)R('rgba(7,6,12,'+cl(f,0,1)+')',0,0,W,H)}
+function stepCutG29(){T++;const t=T;if(t===740)sfx('jump');if(t===765)sfx('whistle');if(t===812)sfx('squawk');if(t>=CUTG29)endCutG29()}
+function endCutG29(){st='intro5';T=0;setPad(1);document.querySelector('.pad').style.visibility='';$('intro5').hidden=false}
+var _goG29=goGalata19;goGalata19=function(){_goG29();$('intro5').hidden=true;document.querySelector('.pad').style.visibility='hidden';st='cutG';T=0};
+$('end10').addEventListener('click',e=>{if(e.target&&e.target.id==='again10'){e.stopImmediatePropagation();e.stopPropagation();$('end10').hidden=true;goGalata19()}},true);
+var _stG29=step;step=function(){if(lvl===6&&st==='cutG'){try{engine(null)}catch(e){}stepCutG29();bgTick22();return}_stG29()};
+var _drG29=draw;draw=function(){if(lvl===6&&st==='cutG')return drawCutG29();_drG29()};
+var _bgG29=bgPick22;bgPick22=function(){if(lvl===6&&st==='cutG')return'tower';return _bgG29()};
+var _skG29=sk;sk=function(){_skG29();if(lvl!==6)return;const b=$('skip'),on=st==='cutG';if(on){if(!UPAUSE&&b.hidden)b.hidden=false;if(!b.classList.contains('sk15'))b.classList.add('sk15')}else if(st==='intro5'&&!b.hidden&&b.classList.contains('sk15'))b.hidden=true};
+$('skip').addEventListener('click',()=>{if(lvl===6&&st==='cutG')T=CUTG29-1});
+
+/* ================= v29p: pause menu – restart the current level without going back to the main menu ================= */
+function lvlNum29(){return{0:1,1:1,2:2,3:3,4:3,5:4,7:5,8:6,11:7,9:8,10:9,6:10,12:11}[lvl]}
+var RST29=null;
+function restart29(){const n=lvlNum29();if(!n)return;const L0=lvl;
+  $('pause').hidden=true;UPAUSE=false;document.querySelectorAll('.card').forEach(c=>c.hidden=true);DQ8=[];TO19=[];
+  $('msg').hidden=true;$('msg').classList.remove('top');$('msg').classList.remove('calm');$('phone').classList.remove('show');$('chat').innerHTML='';$('typed').textContent='';$('skip').hidden=true;
+  try{clearKeys()}catch(e){}JX=JY=0;jb=0;parts=[];fade=0;try{last=performance.now();acc=0}catch(e){}
+  if(L0===1){lvl=1;reset();st='play';fade=30;setPad(1);document.querySelector('.pad').style.visibility='';$('ttl').textContent='Anqi & Mirza’s Journey · Level 1';sfx('pop');return}
+  goLevel(n);RST29=L0===0?null:{left:600,quiet:0};sfx('pop')}
+/* after a restart, skip the level’s opening cutscenes straight to its “how to play” card */
+var _stP29=step;step=function(){_stP29();if(!RST29||UPAUSE)return;RST29.left--;
+  const card=[...document.querySelectorAll('.card')].some(c=>!c.hidden&&c.id!=='pause');
+  if(card||RST29.left<=0){RST29=null;return}
+  if(!$('skip').hidden){RST29.quiet=0;$('skip').click()}else if(++RST29.quiet>45)RST29=null};
+$('pzr').addEventListener('click',restart29);
+
+/* ================= v29 translations ================= */
+Object.assign(TRD.tr,{'Restart level ↻':'Bölümü yeniden başlat ↻','Galata, after the rain':'Yağmurdan sonra Galata',
+'The sun sets in half an hour… I want to watch it from the top!':'Yarım saate güneş batıyor… Tepeden izlemek istiyorum!','The queue is two hours, my friends.':'Sıra iki saat, arkadaşlar.',
+'Two hours?!':'İki saat mi?!','Then we take the shortcut.':'O zaman kestirmeden gideriz.','What shortcut…?':'Ne kestirmesi…?','Hop on my back. Hold on tight!':'Sırtıma bin. Sıkı tutun!',
+'Mirza… you’re crazy.':'Mirza… sen delisin.','…I love it!':'…Bayıldım!','Hey! Where are you two going?!':'Hey! Siz ikiniz nereye?!','QUEUE ~ 2 HOURS':'SIRA ~ 2 SAAT'});
+Object.assign(TRD.zh,{'Restart level ↻':'重新开始本关 ↻','Galata, after the rain':'雨后的加拉塔',
+'The sun sets in half an hour… I want to watch it from the top!':'还有半小时太阳就要落山了……我想在塔顶看日落！','The queue is two hours, my friends.':'朋友们，排队要两个小时。',
+'Two hours?!':'两个小时？！','Then we take the shortcut.':'那我们就走捷径。','What shortcut…?':'什么捷径……？','Hop on my back. Hold on tight!':'跳到我背上，抱紧了！',
+'Mirza… you’re crazy.':'Mirza……你疯了。','…I love it!':'……我太喜欢了！','Hey! Where are you two going?!':'喂！你们俩要去哪儿？！','QUEUE ~ 2 HOURS':'排队约2小时'});
+applyLang();
 
 /* ---------- Controls ---------- */
 const setJ=v=>{K.j=v;if(v)jb=7};
